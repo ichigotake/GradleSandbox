@@ -115,6 +115,8 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:appcompat-v7:+'
+    // settings.gradleの別プロジェクトを読み込む
+    compile project(':lib')
 }
 
 // ビルドの種類によって処理を振り分ける
