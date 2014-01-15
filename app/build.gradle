@@ -26,6 +26,17 @@ android {
         versionCode version.toVersionCode()
         versionName version.toVersionName()
     }
+
+    // メタファイルが原因で同じパッケージが複数コンパイルされてコケる場合がある
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/MANIFEST.MF'
+    }
+
     buildTypes {
         release {
             runProguard false
