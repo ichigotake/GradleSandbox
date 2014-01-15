@@ -3,3 +3,5 @@
 /.idea/
 .DS_Store
 *.iml
+/gradle.properties
+/app/src/main/res/values/_app.xml

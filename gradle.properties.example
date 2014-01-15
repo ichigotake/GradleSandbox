@@ -19,6 +19,9 @@
 # org.gradle.parallel=true
 
 
+# アプリ名
+appName=app
+
 # 署名ビルド
 storeFile=__your_value__
 storeAlias=__your_value__

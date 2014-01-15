@@ -47,10 +47,39 @@ android {
         }
     }
 
+    // ビルドの種類。括弧内の環境は一例
+    // 指定方法
+    //  AndroidStudio:「Build Variants」
+    //  ./gradlew: 基本形として、タスク名の末尾にBuild Variantsをつける
+    //              利用出来るタスクの一覧は「Gradle」ウィンドウで確認可能
+    //              例) ./gradlew assembleStaging
     buildTypes {
+
+        // 本番(Playストア)
         release {
+            debuggable false
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
+        }
+
+        // ステージング(Playストア アルファ版)
+        alpha.initWith(buildTypes.release) // releaseを継承する
+        alpha {
+            debuggable true
+            runProguard false
+            // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
+            // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
+            packageNameSuffix ".alpha"
+            versionNameSuffix "-alpha"
+        }
+
+        // デバッグ(開発環境)
+        debug {
+            debuggable true
+            runProguard false
+            packageNameSuffix ".debug"
+            versionNameSuffix "-debug"
         }
     }
 
@@ -98,4 +127,23 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:appcompat-v7:+'
+}
+
+// ビルドの種類によって処理を振り分ける
+// gradle-android-utils: writeResources(File, Map<String, String>)
+android.applicationVariants.all { variant ->
+    variant.mergeResources.dependsOn {
+        def resourceFile = file("src/main/res/values/_app.xml")
+        switch (variant.buildType.name) {
+            case "release":
+                writeResources(resourceFile, ["app_name": appName])
+                break
+            case "alpha":
+                writeResources(resourceFile, ["app_name": appName + "alpha"])
+                break
+            case "debug":
+                writeResources(resourceFile, ["app_name": appName + " dev"])
+                break
+        }
+    }
 }
