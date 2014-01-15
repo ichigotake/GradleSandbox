@@ -1,0 +1,49 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.+'
+    }
+}
+apply plugin: 'android-library'
+
+def version = readVersion(file("VERSION"))
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 19
+
+        // gradle-android-utils: readVersion()
+        versionCode version.toVersionCode()
+        versionName version.toVersionName()
+    }
+    release {
+        runProguard false
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+}
+
+// プロジェクトトップの `/repository` ディレクトリをMavenレポジトリ化
+// リリース手順:
+//  $ vi app/VERSION
+//  $ ./gradlew uploadArchives
+//  $ git add repository/ app/VERSION
+
+apply plugin: 'maven'
+
+def deployTo = new File(rootDir, "repository")
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://${deployTo}")
+            pom.version = version.toVersionName()
+            pom.groupId = 'com.example.lib'
+            pom.artifactId = 'lib'
+        }
+    }
+}
