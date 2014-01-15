@@ -1,3 +1,20 @@
 
 // settings.gradle内の全てのプロジェクトで利用出来るようにする
 apply from: 'gradle/gradle-android-utils/build.gradle'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.3+'
+    }
+}
+
+// setting.gradle内のプロジェクトのbuild.gradleへ適用する共通設定
+allprojects {
+
+    repositories {
+        mavenCentral()
+    }
+}
