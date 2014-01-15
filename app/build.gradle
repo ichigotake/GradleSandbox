@@ -37,6 +37,16 @@ android {
         exclude 'META-INF/MANIFEST.MF'
     }
 
+    // 署名ビルド
+    signingConfigs {
+        release {
+            storeFile file(project.properties.storeFile)
+            storePassword project.properties.storePassword
+            keyAlias project.properties.storeAlias
+            keyPassword project.properties.keyPassword
+        }
+    }
+
     buildTypes {
         release {
             runProguard false

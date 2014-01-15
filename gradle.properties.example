@@ -1,4 +1,5 @@
 # Project-wide Gradle settings.
+# `gradle.properties` にコピーした上で適宜値をセットする`
 
 # IDE (e.g. Android Studio) users:
 # Settings specified in this file will override any Gradle settings
@@ -16,3 +17,10 @@
 # This option should only be used with decoupled projects. More details, visit
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
+
+
+# 署名ビルド
+storeFile=__your_value__
+storeAlias=__your_value__
+storePassword=__your_value__
+keyPassword=__your_value__
