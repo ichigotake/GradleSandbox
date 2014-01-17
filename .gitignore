@@ -4,4 +4,4 @@
 .DS_Store
 *.iml
 /gradle.properties
-/app/src/main/res/values/_app.xml
+/app/src/*/res/values/_*.xml

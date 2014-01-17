@@ -1,5 +1,48 @@
 apply plugin: 'android'
 
+enum BuildType {
+    RELEASE("", "main"), ALPHA("alpha", "alpha"), DEBUG("debug", "debug")
+
+    final private mName;
+    final private mDirName;
+
+    private BuildType(String name, String dirName) {
+        mName = name;
+        mDirName = dirName;
+    }
+
+    public static BuildType get(String name) {
+        for (BuildType type : values()) {
+            if (type.toString() == name) {
+                return type;
+            }
+        }
+        return DEBUG;
+    }
+
+    public String getDirName() {
+        return mDirName;
+    }
+
+    @Override
+    public String toString() {
+        return mName;
+    }
+}
+
+// ビルドの種類によって処理を振り分ける
+// gradle-android-utils: writeResources(File, Map<String, String>)
+// TODO `gradle.properties`を使わずにアプリ名を取得したい // Context#getString(int resid)したい
+android.buildTypes.all{theBuildType ->
+    def buildType = BuildType.get(theBuildType.name)
+    def resourceDir = new File("app/src/${buildType.getDirName()}/res/values/")
+    resourceDir.mkdirs()
+    def resourceFile = new File(resourceDir, "_app.xml")
+
+    writeResources(resourceFile, ["app_name": appName + " " + buildType.toString()])
+}
+
+
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.1"
@@ -58,16 +101,16 @@ android {
             runProguard false
             // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
             // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
-            packageNameSuffix ".alpha"
-            versionNameSuffix "-alpha"
+            packageNameSuffix "." + BuildType.ALPHA.toString()
+            versionNameSuffix "-" + BuildType.ALPHA.toString()
         }
 
         // デバッグ(開発環境)
         debug {
             debuggable true
             runProguard false
-            packageNameSuffix ".debug"
-            versionNameSuffix "-debug"
+            packageNameSuffix "." + BuildType.DEBUG.toString()
+            versionNameSuffix "-" + BuildType.DEBUG.toString()
         }
     }
 
@@ -124,23 +167,4 @@ dependencies {
     compile 'net.ichigotake.colorfulsweets:ColorfulSweets:0.0.6'
     // settings.gradleの別プロジェクトを読み込む
     compile project(':lib')
-}
-
-// ビルドの種類によって処理を振り分ける
-// gradle-android-utils: writeResources(File, Map<String, String>)
-android.applicationVariants.all { variant ->
-    variant.mergeResources.dependsOn {
-        def resourceFile = file("src/main/res/values/_app.xml")
-        switch (variant.buildType.name) {
-            case "release":
-                writeResources(resourceFile, ["app_name": appName])
-                break
-            case "alpha":
-                writeResources(resourceFile, ["app_name": appName + "alpha"])
-                break
-            case "debug":
-                writeResources(resourceFile, ["app_name": appName + " dev"])
-                break
-        }
-    }
 }
