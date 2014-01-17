@@ -29,10 +29,11 @@ android {
 }
 
 // プロジェクトトップの `/repository` ディレクトリをMavenレポジトリ化
-// リリース手順:
-//  $ vi app/VERSION
+// リリースの例
+//  $ echo '0.1.2' > lib/VERSION
 //  $ ./gradlew uploadArchives
-//  $ git add repository/ app/VERSION
+//  $ git add repository/ lib/VERSION && git commit -m 'release 0.1.2'
+//  $ git tag '0.1.2' && git push origin 0.1.2:0.1.2 && git push origin master:master
 
 apply plugin: 'maven'
 
