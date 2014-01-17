@@ -6,7 +6,7 @@
 
 ## 内容
 
-`build.gradle` と (コミットログ)[https://github.com/ichigotake/AndroidBuildSettingExample/commits/master] を参照
+`build.gradle` と [コミットログ](https://github.com/ichigotake/AndroidBuildSettingExample/commits/master) を参照
 
 ## 使用しているモジュール
 
