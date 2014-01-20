@@ -1,5 +1,13 @@
 
 // settings.gradle内の全てのプロジェクトで利用出来るようにする
+//
+// 初回コミット時
+//  $ git submodule init
+//  $ git submodule add git@github.com:gfx/gradle-android-utils.git gradle/gradle-android-utils
+//
+// clone OR pull時
+// $ git submodule init
+// $ git submodule update
 apply from: 'gradle/gradle-android-utils/build.gradle'
 
 buildscript {
