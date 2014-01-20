@@ -21,11 +21,23 @@ android {
 }
 
 // プロジェクトトップの `/repository` ディレクトリをMavenレポジトリ化
+// 
 // リリースの例
 //  $ echo '0.1.2' > lib/VERSION
 //  $ ./gradlew uploadArchives
 //  $ git add repository/ lib/VERSION && git commit -m 'release 0.1.2'
 //  $ git tag '0.1.2' && git push origin 0.1.2:0.1.2 && git push origin master:master
+//
+// 利用例
+//  ## 利用するプロジェクトのbuild.gradleに以下の記述を追加
+//  repositories {
+//      maven { url 'https://raw.github.com/ichigotake/AndroidBuildSettingExample/master/repository' }
+//  }
+//
+//  dependencies {
+//      compile 'com.example.lib:lib:0.0.0'
+//  }
+//
 
 apply plugin: 'maven'
 
