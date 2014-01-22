@@ -19,10 +19,18 @@ buildscript {
     }
 }
 
+// `sdk.dir` が記述された `local.properties` を生成する
+// gradle-android-utils: initSdkDIr()
+initSdkDir()
+
 // setting.gradle内のプロジェクトのbuild.gradleへ適用する共通設定
 allprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
+        maven {
+            url "${System.env.HOME}/.m2/repository"
+        }
     }
 }

@@ -1,4 +1,4 @@
-# AndroidBuildSettingExample
+# AndroidBuildSettingExample  [![Build Status](https://travis-ci.org/ichigotake/AndroidBuildSettingExample.png)](https://travis-ci.org/ichigotake/AndroidBuildSettingExample)
 
 ## 概要
 

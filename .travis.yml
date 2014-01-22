@@ -1,0 +1,26 @@
+language: java
+# failed to `oraclejdk6` on jdk_switcher
+# TODO fix to `openjdk6`
+jdk: oraclejdk7
+before_install:
+    # Install base Android SDK
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq libstdc++6:i386 lib32z1
+    - export COMPONENTS=build-tools-19.0.1,android-19,sysimg-19,extra
+    - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin --install=$COMPONENTS
+    - source ~/.android-sdk-installer/env
+    - export TERM=dumb # to get clean gradle output
+    - git submodule init && git submodule update
+
+    # Create and start emulator
+    - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a
+    - emulator -avd test -no-skin -no-audio -no-window &
+
+    - cp gradle.properties.example gradle.properties
+install: ./gradlew
+before_script:
+    # Downlowd to `wait_for_emulator`
+    # https://github.com/embarkmobile/android-maven-example
+    - wait_for_emulator
+script:
+    - ./gradlew clean connectInstrumentTest

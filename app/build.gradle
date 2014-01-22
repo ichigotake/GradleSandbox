@@ -157,7 +157,7 @@ dependencies {
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:appcompat-v7:+'
     // 野良Mavenレポジトリ
-    compile 'net.ichigotake.colorfulsweets:ColorfulSweets:0.0.6'
+    compile 'net.ichigotake.colorfulsweets:ColorfulSweets:0.0.7'
     // settings.gradleの別プロジェクトを読み込む
     compile project(':lib')
 }
