@@ -1,45 +1,34 @@
 apply plugin: 'android'
 
-enum BuildType {
-    RELEASE("", "main"), ALPHA("alpha", "alpha"), DEBUG("debug", "debug")
+def build = [
+    'release': [
+            dirName: 'main',
+            nameSuffix: '',
+            packageNameSuffix: '',
+    ],
+    'alpha': [
+            dirName: 'alpha',
+            nameSuffix: '-alpha',
+            packageNameSuffix: '.alpha',
+    ],
+    'debug': [
+            dirName: 'debug',
+            nameSuffix: '-debug',
+            packageNameSuffix: '.debug',
+    ],
+]
 
-    final private mName;
-    final private mDirName;
-
-    private BuildType(String name, String dirName) {
-        mName = name;
-        mDirName = dirName;
-    }
-
-    public static BuildType get(String name) {
-        for (BuildType type : values()) {
-            if (type.toString() == name) {
-                return type;
-            }
-        }
-        return DEBUG;
-    }
-
-    public String getDirName() {
-        return mDirName;
-    }
-
-    @Override
-    public String toString() {
-        return mName;
-    }
-}
 
 // ビルドの種類によって処理を振り分ける
 // gradle-android-utils: writeResources(File, Map<String, String>)
 // TODO `gradle.properties`を使わずにアプリ名を取得したい // Context#getString(int resid)したい
 android.buildTypes.all{theBuildType ->
-    def buildType = BuildType.get(theBuildType.name)
-    def resourceDir = new File("app/src/${buildType.getDirName()}/res/values/")
+    def buildType = build[theBuildType.name]
+    def resourceDir = new File("app/src/${buildType.dirName}/res/values")
     resourceDir.mkdirs()
     def resourceFile = new File(resourceDir, "_app.xml")
 
-    writeResources(resourceFile, ["app_name": appName + " " + buildType.toString()])
+    writeResources(resourceFile, ["app_name": appName + buildType.nameSuffix])
 }
 
 
@@ -95,22 +84,22 @@ android {
         }
 
         // ステージング(Playストア アルファ版)
-        alpha.initWith(buildTypes.release) // releaseを継承する
+        alpha.initWith(release) // releaseを継承する
         alpha {
             debuggable true
             runProguard false
             // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
             // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
-            packageNameSuffix "." + BuildType.ALPHA.toString()
-            versionNameSuffix "-" + BuildType.ALPHA.toString()
+            packageNameSuffix build['alpha'].packageNameSuffix
+            versionNameSuffix build['alpha'].nameSuffix
         }
 
         // デバッグ(開発環境)
         debug {
             debuggable true
             runProguard false
-            packageNameSuffix "." + BuildType.DEBUG.toString()
-            versionNameSuffix "-" + BuildType.DEBUG.toString()
+            packageNameSuffix build['debug'].packageNameSuffix
+            versionNameSuffix build['debug'].nameSuffix
         }
     }
 
