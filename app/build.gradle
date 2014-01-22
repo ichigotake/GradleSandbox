@@ -144,6 +144,10 @@ android {
     }
 }
 
+//debugビルド時にアプリアイコンをグレースケールにする
+//gradle-android-utils: makeGrayscaleLauncherIcon
+makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
+
 repositories {
     // 野良Mavenレポジトリ
     maven { url 'https://raw.github.com/ichigotake/ColorfulSweets/develop/repository' }
