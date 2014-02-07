@@ -6,10 +6,10 @@ def build = [
             nameSuffix: '',
             packageNameSuffix: '',
     ],
-    'alpha': [
-            dirName: 'alpha',
-            nameSuffix: '-alpha',
-            packageNameSuffix: '.alpha',
+    'stage': [
+            dirName: 'stage',
+            nameSuffix: '-stage',
+            packageNameSuffix: '.stage',
     ],
     'debug': [
             dirName: 'debug',
@@ -83,15 +83,14 @@ android {
             signingConfig signingConfigs.release
         }
 
-        // ステージング(Playストア アルファ版)
-        alpha.initWith(release) // releaseを継承する
-        alpha {
+        stage.initWith(release) // releaseを継承する
+        stage {
             debuggable true
             runProguard false
             // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
             // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
-            packageNameSuffix build['alpha'].packageNameSuffix
-            versionNameSuffix build['alpha'].nameSuffix
+            packageNameSuffix build['stage'].packageNameSuffix
+            versionNameSuffix build['stage'].nameSuffix
         }
 
         // デバッグ(開発環境)
