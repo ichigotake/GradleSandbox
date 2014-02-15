@@ -44,14 +44,21 @@ android {
     }
 
     /**
+     * buildTypeとの使い分けとして、ソフトウェア的な振り分けに使われる風潮がある?(あまり文化はわかっていない
+     */
+    productFlavors {
+        free {
+            packageName "com.example.app.free"
+        }
+
+        pro {
+            packageName "com.example.app.pro"
+        }
+    }
+
+    /**
      * ビルドの種類。括弧内の環境は一例
-     *
-     * 指定方法
-     *  AndroidStudio:「Build Variants」ウィンドウのタスク一覧から選んで実行
-     *  ./gradlew: 基本形として、タスク名の末尾にBuild Variantsをつける
-     *              利用出来るタスクの一覧は ./gradlew で確認可能
-     *              例) $ ./gradlew tasks
-     *              例) $ ./gradlew assembleStaging # stagingのみのassembleを実行
+     * productFlavorとの使い分けとして、ビルド方法やapkのアップロード先の振り分けに使われる風潮がある?(あまり文化はわかっていない
      */
     buildTypes {
 
@@ -63,15 +70,15 @@ android {
             signingConfig signingConfigs.release
         }
 
-        // ステージング(Playストア アルファ版)
-        alpha.initWith(release) // releaseを継承する
-        alpha {
+        // ステージング(DeployGate)
+        stage.initWith(release) // releaseを継承する
+        stage {
             debuggable true
             runProguard false
             // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
             // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
-            packageNameSuffix '.alpha'
-            versionNameSuffix '-alpha'
+            packageNameSuffix '.stage'
+            versionNameSuffix '-stage'
         }
 
         // デバッグ(開発環境)
@@ -82,7 +89,9 @@ android {
             versionNameSuffix '-debug'
 
             // ビルド時に BuildConfig クラスに定数が定義される
-            buildConfigField "String", "DEBUG_MESSAGE", "debugビルド専用ですよ！！！"
+            // 引数の中身がそのまま Java のソースコード上に展開されるので、
+            // String の場合はクオートも含まないとコンパイルエラーを起こす
+            buildConfigField "String", "DEBUG_MESSAGE", "\"debugビルド専用ですよ\""
         }
     }
 
@@ -142,30 +151,37 @@ android {
 //gradle-android-utils: makeGrayscaleLauncherIcon
 makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
 
-// ビルドの種類によって処理を振り分ける
+/**
+ * 全ての BuildVariansts でループを回す
+ */
 android.applicationVariants.all { variant ->
-    def resourceDir = new File("app/src/${variant.buildType.name}/res/values")
+    def resourceDir = new File("app/src/${variant.name}/res/values")
     resourceDir.mkdirs()
     def resourceFile = new File(resourceDir, "_app.xml")
 
+    println("VARIANT" + variant.name)
     /**
      * Map を Resource の XML 構造に変換してファイルに書き込む
      *
      * gradle-android-utils: writeResources(File, Map<String, String>)
      */
-    writeResources(resourceFile, ["app_name": "MyApp" + variant.buildType.name.capitalize()])
+    writeResources(resourceFile, ["app_name": "MyApp" + variant.name.capitalize()])
+}
 
+android.buildTypes.all{theBuildType ->
     /**
      * Map を BuildConfig にセットする
+     * android.applicationVariants.all のループ内でこの処理をやると、
+     * 同じ BuildConfig 内に指定した Map が多重定義されるので注意
      *
      * プルリクを出してるところ。マージされるかな?
      * https://github.com/gfx/gradle-android-utils/pull/7
      */
     def buildConfigMap = [
-            'APP_NAME': 'MyApp' + variant.buildType.name.capitalize(),
+            'APP_NAME': 'MyApp' + theBuildType.name.capitalize(),
             'EXTENSION_MIN_SDK_INT': 14,
             'API_SERVER_PRODUCTION': false,
     ]
     //util.gradleに入っているメソッド
-    setBuildConfigField(variant.buildType, buildConfigMap)
+    setBuildConfigField(theBuildType, buildConfigMap)
 }
