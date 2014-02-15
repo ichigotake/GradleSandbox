@@ -3,10 +3,25 @@ apply plugin: 'android'
 // 外部ファイル読み込み
 apply from: 'util.gradle'
 
+repositories {
+    // 野良Mavenレポジトリ
+    maven { url 'https://raw.github.com/ichigotake/ColorfulSweets/develop/repository' }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.0.0'
+    compile 'com.android.support:appcompat-v7:+'
+    // 野良Mavenレポジトリ
+    compile 'net.ichigotake.colorfulsweets:ColorfulSweets:0.0.7'
+    // settings.gradleの別プロジェクトを読み込む
+    compile project(':lib')
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.1"
 
+    // 全ての BuildVariants に適用されるベースの設定(個別に上書きも可能)
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 19
@@ -16,16 +31,6 @@ android {
         def version = readVersion(file("VERSION"))
         versionCode version.toVersionCode()
         versionName version.toVersionName()
-    }
-
-    // メタファイルが原因で同じパッケージが複数コンパイルされてコケる場合がある
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/MANIFEST.MF'
     }
 
     // 署名ビルド
@@ -38,12 +43,16 @@ android {
         }
     }
 
-    // ビルドの種類。括弧内の環境は一例
-    // 指定方法
-    //  AndroidStudio:「Build Variants」
-    //  ./gradlew: 基本形として、タスク名の末尾にBuild Variantsをつける
-    //              利用出来るタスクの一覧は「Gradle」ウィンドウで確認可能
-    //              例) ./gradlew assembleStaging
+    /**
+     * ビルドの種類。括弧内の環境は一例
+     *
+     * 指定方法
+     *  AndroidStudio:「Build Variants」ウィンドウのタスク一覧から選んで実行
+     *  ./gradlew: 基本形として、タスク名の末尾にBuild Variantsをつける
+     *              利用出来るタスクの一覧は ./gradlew で確認可能
+     *              例) $ ./gradlew tasks
+     *              例) $ ./gradlew assembleStaging # stagingのみのassembleを実行
+     */
     buildTypes {
 
         // 本番(Playストア)
@@ -75,6 +84,17 @@ android {
             // ビルド時に BuildConfig クラスに定数が定義される
             buildConfigField "String", "DEBUG_MESSAGE", "debugビルド専用ですよ！！！"
         }
+    }
+
+
+    // メタファイルが原因で同じパッケージが複数コンパイルされてコケる場合がある
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/MANIFEST.MF'
     }
 
     // Lintチェック。ブロック内は公式ガイドラインからの引用
@@ -148,19 +168,4 @@ android.applicationVariants.all { variant ->
     ]
     //util.gradleに入っているメソッド
     setBuildConfigField(variant.buildType, buildConfigMap)
-}
-
-
-repositories {
-    // 野良Mavenレポジトリ
-    maven { url 'https://raw.github.com/ichigotake/ColorfulSweets/develop/repository' }
-}
-
-dependencies {
-    compile 'com.android.support:support-v4:19.0.0'
-    compile 'com.android.support:appcompat-v7:+'
-    // 野良Mavenレポジトリ
-    compile 'net.ichigotake.colorfulsweets:ColorfulSweets:0.0.7'
-    // settings.gradleの別プロジェクトを読み込む
-    compile project(':lib')
 }
