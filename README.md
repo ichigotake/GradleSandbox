@@ -1,4 +1,4 @@
-# AndroidBuildSettingExample  [![Build Status](https://travis-ci.org/ichigotake/AndroidBuildSettingExample.png)](https://travis-ci.org/ichigotake/AndroidBuildSettingExample)
+# GradleSandbox [![Build Status](https://travis-ci.org/ichigotake/GradleSandbox.png)](https://travis-ci.org/ichigotake/GradleSandbox)
 
 ## 概要
 
