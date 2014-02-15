@@ -1,36 +1,7 @@
 apply plugin: 'android'
 
-def build = [
-    'release': [
-            dirName: 'main',
-            nameSuffix: '',
-            packageNameSuffix: '',
-    ],
-    'alpha': [
-            dirName: 'alpha',
-            nameSuffix: '-alpha',
-            packageNameSuffix: '.alpha',
-    ],
-    'debug': [
-            dirName: 'debug',
-            nameSuffix: '-debug',
-            packageNameSuffix: '.debug',
-    ],
-]
-
-
-// ビルドの種類によって処理を振り分ける
-// gradle-android-utils: writeResources(File, Map<String, String>)
-// TODO `gradle.properties`を使わずにアプリ名を取得したい // Context#getString(int resid)したい
-android.buildTypes.all{theBuildType ->
-    def buildType = build[theBuildType.name]
-    def resourceDir = new File("app/src/${buildType.dirName}/res/values")
-    resourceDir.mkdirs()
-    def resourceFile = new File(resourceDir, "_app.xml")
-
-    writeResources(resourceFile, ["app_name": appName + buildType.nameSuffix])
-}
-
+// 外部ファイル読み込み
+apply from: 'util.gradle'
 
 android {
     compileSdkVersion 19
@@ -90,16 +61,19 @@ android {
             runProguard false
             // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
             // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
-            packageNameSuffix build['alpha'].packageNameSuffix
-            versionNameSuffix build['alpha'].nameSuffix
+            packageNameSuffix '.alpha'
+            versionNameSuffix '-alpha'
         }
 
         // デバッグ(開発環境)
         debug {
             debuggable true
             runProguard false
-            packageNameSuffix build['debug'].packageNameSuffix
-            versionNameSuffix build['debug'].nameSuffix
+            packageNameSuffix '.debug'
+            versionNameSuffix '-debug'
+
+            // ビルド時に BuildConfig クラスに定数が定義される
+            buildConfigField "String", "DEBUG_MESSAGE", "debugビルド専用ですよ！！！"
         }
     }
 
@@ -147,6 +121,35 @@ android {
 //debugビルド時にアプリアイコンをグレースケールにする
 //gradle-android-utils: makeGrayscaleLauncherIcon
 makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
+
+// ビルドの種類によって処理を振り分ける
+android.applicationVariants.all { variant ->
+    def resourceDir = new File("app/src/${variant.buildType.name}/res/values")
+    resourceDir.mkdirs()
+    def resourceFile = new File(resourceDir, "_app.xml")
+
+    /**
+     * Map を Resource の XML 構造に変換してファイルに書き込む
+     *
+     * gradle-android-utils: writeResources(File, Map<String, String>)
+     */
+    writeResources(resourceFile, ["app_name": "MyApp" + variant.buildType.name.capitalize()])
+
+    /**
+     * Map を BuildConfig にセットする
+     *
+     * プルリクを出してるところ。マージされるかな?
+     * https://github.com/gfx/gradle-android-utils/pull/7
+     */
+    def buildConfigMap = [
+            'APP_NAME': 'MyApp' + variant.buildType.name.capitalize(),
+            'EXTENSION_MIN_SDK_INT': 14,
+            'API_SERVER_PRODUCTION': false,
+    ]
+    //util.gradleに入っているメソッド
+    setBuildConfigField(variant.buildType, buildConfigMap)
+}
+
 
 repositories {
     // 野良Mavenレポジトリ
