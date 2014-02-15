@@ -1,3 +1,8 @@
+/**
+ * buiild.gradle もしくは build.gradle が利用する ファイルを更新したら
+ * 「Sync project with gradle files」 しましょう
+ */
+
 apply plugin: 'android'
 
 // 外部ファイル読み込み
