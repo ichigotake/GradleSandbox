@@ -76,12 +76,6 @@ android {
         }
 
         // ステージング(DeployGate)
-        stage.initWith(release) // releaseを継承する
-        stage {
-            debuggable true
-            runProguard false
-            // 端末内に別ビルドのアプリを共存出来るようにするために違うパッケージ名にする
-            // AndroidManifest.xmlに<provider>がある場合は、authoritiesをビルド毎に異なる値にする必要がある
             packageNameSuffix '.stage'
             versionNameSuffix '-stage'
         }
