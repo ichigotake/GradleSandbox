@@ -152,21 +152,25 @@ android {
 makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
 
 /**
- * 全ての BuildVariansts でループを回す
+ * 全ての BuildVariants でループを回す
  */
 android.applicationVariants.all { variant ->
-    def resourceDir = new File("app/src/${variant.name}/res/values")
-    resourceDir.mkdirs()
-    def resourceFile = new File(resourceDir, "_app.xml")
-
     /**
      * Map を Resource の XML 構造に変換してファイルに書き込む
      *
      * gradle-android-utils: writeResources(File, Map<String, String>)
      */
+    def baseDir = new File("${buildDir}/").getParent();
+    def resourceDir = new File(baseDir + "/src/${variant.name}/res/values")
+    resourceDir.mkdirs()
+    def resourceFile = new File(resourceDir, "_app.xml")
+
     writeResources(resourceFile, ["app_name": "MyApp" + variant.name.capitalize()])
 }
 
+/**
+ * 全ての BuildTypes でループを回す
+ */
 android.buildTypes.all{theBuildType ->
     /**
      * Map を BuildConfig にセットする
@@ -183,4 +187,57 @@ android.buildTypes.all{theBuildType ->
     ]
     //util.gradleに入っているメソッド
     setBuildConfigField(theBuildType, buildConfigMap)
+}
+
+/**
+ * カスタムタスク: generateManifest
+ * BuildVariants 毎の AndroidManifest.xml を用意する
+ */
+task generateManifest << {
+    android.applicationVariants.all { variant ->
+        def baseDir = new File("${buildDir}/").getParent();
+
+        /**
+         * BuildVariant用のAndroidManifest.xmlを用意する
+         */
+        new File(baseDir + "/src/${variant.name}").mkdirs();
+        def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "ns")
+        def baseManifest = {
+            def file = new File(baseDir + "/src/main/AndroidManifest.xml");
+            return new XmlParser(false, true).parseText(file.getText())
+        }()
+        def basePackageName = baseManifest.'@package'
+        def variantPackageName = {
+            def name = variant.productFlavors.get(0).packageName
+            if (variant.buildType.packageNameSuffix != null) {
+                name += variant.buildType.packageNameSuffix
+            }
+            return name
+        }()
+        def variantManifestNode = new XmlParser(false, false).parseText(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                        "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                        "    package=\"${variantPackageName}\" />"
+        )
+
+        // パッケージ名の差分を用意する
+        for (def node in baseManifest.children()) {
+            switch (node.name()) {
+                case 'permission':
+                case 'uses-permission':
+                    def name = node.attributes()[ns.'name']
+                    node.attributes()[ns.'name'] = name.replace(basePackageName, variantPackageName)
+                    variantManifestNode.append(node)
+                    break
+
+            }
+        }
+
+        // "app/${variant.name}/AndroidManifest.xml" へ書き込む
+        def variantManifestFile = new File(baseDir + "/src/${variant.name}/AndroidManifest.xml")
+        def writer = new FileWriter(variantManifestFile)
+        def printer = new XmlNodePrinter(new PrintWriter(writer))
+        printer.setPreserveWhitespace(true)
+        printer.print(variantManifestNode)
+    }
 }

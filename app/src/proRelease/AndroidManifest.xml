@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.app.pro">
+  <permission android:name="com.example.app.pro.SOME_PERMISSION" xmlns:android="http://schemas.android.com/apk/res/android"/>
+  <uses-permission android:name="com.example.app.pro.FOO_PERMISSION" xmlns:android="http://schemas.android.com/apk/res/android"/>
+</manifest>
