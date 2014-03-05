@@ -6,7 +6,7 @@
 apply plugin: 'android'
 
 // 外部ファイル読み込み
-apply from: 'util.gradle'
+// apply from: 'util.gradle'
 
 repositories {
     // 野良Mavenレポジトリ
@@ -173,19 +173,19 @@ android.applicationVariants.all { variant ->
  */
 android.buildTypes.all{theBuildType ->
     /**
-     * Map を BuildConfig にセットする
-     * android.applicationVariants.all のループ内でこの処理をやると、
-     * 同じ BuildConfig 内に指定した Map が多重定義されるので注意
+     * android-gradle-utils: setBuildConfigField(buildType, map)
      *
-     * プルリクを出してるところ。マージされるかな?
-     * https://github.com/gfx/gradle-android-utils/pull/7
+     * Map を buildConfigField() 経由で BuildConfig にセットする
+     *
+     * android.applicationVariants.all のループ内でこの処理をやると、
+     * 同じ BuildConfig 内に指定した Map が多重定義される場合があるので注意
+     * 同じ値でも呼び出した回数分がBuildConfigへ追記されるので気をつける
      */
     def buildConfigMap = [
             'APP_NAME': 'MyApp' + theBuildType.name.capitalize(),
             'EXTENSION_MIN_SDK_INT': 14,
             'API_SERVER_PRODUCTION': false,
     ]
-    //util.gradleに入っているメソッド
     setBuildConfigField(theBuildType, buildConfigMap)
 }
 
