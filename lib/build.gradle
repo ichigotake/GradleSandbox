@@ -4,7 +4,7 @@ def version = readVersion(file("VERSION"))
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 11
@@ -13,10 +13,6 @@ android {
         // gradle-android-utils: readVersion()
         versionCode version.toVersionCode()
         versionName version.toVersionName()
-    }
-    release {
-        runProguard false
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
     }
 }
 
